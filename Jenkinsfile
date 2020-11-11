@@ -1,8 +1,39 @@
-node {
-	stage('Build') {
-		echo "Build"
+// node {
+// 	stage('Build') {
+// 		echo "Build"
+// 	}
+// 	stage('Test') {
+// 		echo "Test"
+// 	}
+// }
+
+pipeline {
+	stages {
+		stage ('Build') {
+			steps {
+				echo 'Build'
+			}
+		}
+		stage ('Test') {
+			steps {
+				echo 'Test'
+			}
+		}
+		stage ('IntegrationTest'){
+			steps {
+				echo 'Integration test'
+			}
+		}
 	}
-	stage('Test') {
-		echo "Test"
+	post {
+		always {
+			echo 'Im running always'
+		}
+		success	 {
+			echo 'Im running on success'
+		}
+		failure {
+			echo 'Im running when the pipeline fail'
+		}
 	}
 }
