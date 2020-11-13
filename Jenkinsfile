@@ -26,7 +26,8 @@ pipeline {
 				echo "BUIL_ID - $env.BUILD_ID"
 				echo "BUIL_NUMBER - $env.BUILD_NUMBER"
 				echo "BUILD_DISPLAY_NAME - $env.BUILD_DISPLAY_NAME"
-				echo "BUIL_URL - $env.BUILD_URL"
+				echo "BUILD_URL - $env.BUILD_URL"
+				echo "BUILD_TAG - $env.BUILD_TAG" 
 			}
 		}
 		stage ('Compile') {
@@ -42,6 +43,28 @@ pipeline {
 		stage ('Integration Test'){
 			steps {
 				sh 'mvn failsafe:integration-test failsafe:verify'
+			}
+		}
+		stage ('Package'){
+			steps {
+				sh 'mvn package -DskipTests'
+			}
+		}
+		stage ('Build Docker Image'){
+			steps {
+				//docker build -t zyxphreez/currency-exchange:$env.BUILD_TAG
+				script {
+					dockerImage = docker.build("zyxphreez/currency-exchange:${env.BUILD_TAG}")
+				}
+			}
+		}
+		stage ('Push to DockerHub'){
+			script {
+				docker.withRegistry('', 'dockerhub')
+				{
+					dockerImage.push();
+					dockerImage.push('latest');
+				}
 			}
 		}
 	}
